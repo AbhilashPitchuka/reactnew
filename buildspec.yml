@@ -1,0 +1,19 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 12
+    commands:
+      - npm install
+      - apt-get update -y
+  build:
+    commands:
+      - npm run build
+  post_build:
+    commands:
+      - aws s3 cp --recursive ./dist s3://$BUCKET_NAME/
+      - aws cloudfront create-invalidation --distribution-id $DIST_ID --paths '/*'
+artifacts:
+  files:
+    - '**/*'
+  base-directory: dist
